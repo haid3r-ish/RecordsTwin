@@ -1,33 +1,41 @@
-# 📖 RecordTwin - Intelligent Land & Legal Records Management System
+# 📖 RecordsTwin - Intelligent Land & Legal Records Management System
 
-Welcome to **RecordTwin**, an AI-driven digital archiving and land/legal record management platform specifically engineered for agricultural real estate and legal document tracking in Pakistan.
+[![Repository](https://img.shields.io/badge/GitHub-RecordsTwin-blue?logo=github)](https://github.com/haid3r-ish/RecordsTwin)
 
-## 🔗 Repository
-Official GitHub Repository: [https://github.com/haid3r-ish/RecordsTwin](https://github.com/haid3r-ish/RecordsTwin)
+Welcome to **RecordsTwin**, an AI-driven digital archiving and land records management system engineered specifically for agricultural and real estate ecosystems.
 
----
-
-## 🌟 Key Features & Vision
-
-RecordTwin bridges the gap between traditional paper-heavy legal proceedings (e-Stamps, Patwari ledgers, court case files) and modern software systems by replacing error-prone OCR with a high-accuracy Voice Dictation and Retrieval-Augmented Generation (RAG) pipeline.
-
-- **1:1 Digital Hierarchy**: Mirror real-world property boundaries, family divisions, and legal structures.
-- **Speech-to-Text Dictation**: Bypasses classic OCR issues on handwritten Urdu and degraded documents through verified voice dictation.
-- **Multilingual Semantic Search**: Retrieve records across Urdu and English using context and vector embeddings.
-- **Explicit Document Linking**: Connect historical registries, court rulings, superseding deeds, and mutations.
-- **Timeline & Hearing Tracking**: Manage hearing dates (*Tareekh*), deadlines, and chronological document lifecycles.
-- **Multi-Document AI Export**: Bundle document context, dictations, and summaries directly to your clipboard for external LLM analysis.
+Repository Link: [https://github.com/haid3r-ish/RecordsTwin](https://github.com/haid3r-ish/RecordsTwin)
 
 ---
 
-## 📚 Project Documentation
+## 🚀 Overview
 
-- [Project Brief](brief.md) - Detailed vision, problem statement, and end goals.
-- [Business Requirements Document (BRD)](brd.md) - Complete MVP specifications and detailed functional requirements.
+**RecordsTwin** bridges the gap between traditional paper-heavy legal proceedings (e.g., e-Stamps, Patwari ledgers, court case files) and modern digital software engineering practices.
+
+Instead of relying solely on standard OCR—which often struggles with handwritten Urdu and aged legal documents—RecordsTwin incorporates:
+- **Voice Dictation & Metadata Archiving**
+- **Retrieval-Augmented Generation (RAG) & Semantic Search**
+- **Physical Hard-Copy Mapping & Hierarchical Organization**
+- **Contextual Learning & Terminology Explanations**
 
 ---
 
-## 🚀 Branch Information
+## 🎯 Key Features
 
-- **Current Branch**: `mvp`
-- **Repository**: [https://github.com/haid3r-ish/RecordsTwin](https://github.com/haid3r-ish/RecordsTwin)
+1. **Total Digital Organization & Physical Mapping**: Hierarchical repository mirroring physical property boundaries, court files, and revenue documents.
+2. **Semantic Cross-Lingual Discoverability**: Search records by context in Roman Urdu, Urdu, or English using vector embeddings.
+3. **Contextual AI Learning**: Export document context to external LLMs to understand complex legal terms (*Inteqal*, *Naqal*, *Malia*, *Abiana*, *Bayan Nama*).
+4. **Timeline & Case Tracking**: Visual chronological tracking of land transactions, hearings (*Tareekh*), and legal proceedings.
+
+---
+
+## 📁 Repository Information
+
+- **GitHub Repository**: [https://github.com/haid3r-ish/RecordsTwin](https://github.com/haid3r-ish/RecordsTwin)
+- **Branch**: `version-001` (Version Code: `001`)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
