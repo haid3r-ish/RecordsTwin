@@ -1,87 +1,86 @@
 # Business Requirements Document (BRD)
 **Project Name:** RecordTwin (Intelligent Land & Legal Records Management System)
-**Document Version:** 1.0 (MVP Scope)
+**Document Version:** 1.1 (MVP Scope - Architecturally Hardened)
 
 ---
 
 ## 1. Executive Summary
-RecordTwin is a specialized digital archiving and management system tailored for the Pakistani agricultural real estate and legal ecosystem. It replaces error-prone traditional OCR with a highly accurate Voice Dictation and Retrieval-Augmented Generation (RAG) pipeline. The system allows users to ingest, organize, interlink, and semantically search their physical property deeds, Patwari records, and court documents. It acts as both a secure digital ledger and a contextual educational tool to help users comprehend complex legal terminology.
+RecordTwin is a specialized digital archiving and management system tailored for the Pakistani agricultural real estate and legal ecosystem. It bypasses error-prone OCR with a phonetically normalized Voice Dictation pipeline. The system acts as a secure digital ledger and contextual educational tool. It leverages a strictly consolidated PostgreSQL infrastructure (`pgvector` + `ltree`) to ensure ACID-compliant hybrid search (Semantic + Relational Lineage) without distributed database bloat.
 
 ## 2. System Objectives
 * Provide a 1:1 structured digital hierarchy for physical legal and land records.
-* Enable cross-lingual semantic search (dictate in Urdu, search in English).
-* Replace automated text extraction (OCR) with user-verified speech-to-text dictation.
-* Facilitate on-the-fly learning of complex legal terminology without integrating expensive, native LLM chat modules.
+* Enable cross-lingual semantic search (dictate in Urdu, search in English) combined with exact graph-like lineage filtering.
+* Replace automated text extraction (OCR) with user-verified, domain-normalized speech-to-text dictation.
+* Facilitate on-the-fly learning of complex legal terminology via native OS-level sharing to external LLMs.
 * Map chronological lifecycles of land mutations and legal disputes.
 
 ---
 
-## 3. Detailed Functional Requirements
+## 3. Pure Functional Requirements (The "What")
 
 ### 3.1 Document Ingestion & UI Handling
-* **Capture & Upload:** The system shall allow users to ingest documents via the device's native camera or gallery selection.
-* **Resolution Management:** The UI must provide a mechanism to compress images (e.g., 480p, 720p) and preview file size/quality before saving to optimize storage.
-* **Manual Cropping:** A manual bounding-box cropping tool must be presented immediately post-capture to remove background noise.
-* **Parent-Child Grouping:** 
-  * Users can upload a **Primary Document** (e.g., e-Stamp paper, court order).
-  * Users can attach multiple **Sub-Documents** (e.g., CNIC copies, bank slips, payment receipts) specifically nested under the Primary Document.
-* **Split-Screen Verification Mode:** The document detail UI shall feature a split-screen layout. The top container will hold a zoomable, pannable image viewer, while the bottom container holds an editable text area for dictation verification without breaking user context.
+* **Capture & Upload:** Ingest documents via the device's native camera or gallery.
+* **Resolution Management:** Compress images (e.g., 480p, 720p) and preview file size/quality before saving.
+* **Manual Cropping:** A manual bounding-box cropping tool post-capture to remove background noise.
+* **Parent-Child Grouping:** Users can upload a **Primary Document** and attach multiple **Sub-Documents** (CNIC copies, receipts) nested beneath it.
+* **Split-Screen Verification Mode:** Document UI features a split-screen: top container for a zoomable image viewer, bottom container for a text area for dictation verification.
 
 ### 3.2 Dictation & Text Pipeline (Bypassing OCR)
-* **Voice Input (STT):** The application shall provide an in-app microphone toggle to record the user dictating or summarizing the document in Urdu or Roman Urdu.
-* **Transcription & Editing:** The recorded audio must be transcribed into raw text and populated into the bottom-half text editor for manual review and correction prior to database submission.
+* **Voice Input (STT):** In-app microphone toggle to record the user dictating the document in Urdu or Roman Urdu.
+* **Transcription & Editing:** Audio is transcribed into raw text and populated into the bottom-half text editor for manual review and correction.
 
 ### 3.3 Cross-Lingual AI Processing & Metadata
-* **Translation & Summarization:** Upon submission of the transcribed text (Roman Urdu/Urdu), the backend shall prompt an LLM to generate a concise summary strictly in **English**.
-* **Keyword & Entity Extraction:** The LLM shall extract key entities (names, dates, dimensions, revenue terms) in English and return them as a structured array.
-* **Vectorization:** The system shall generate and store vector embeddings for *both* the original Roman Urdu transcription and the English summary using a multilingual embedding model.
+* **Translation & Summarization:** The backend prompts an LLM to generate a concise summary of the transcribed text strictly in **English**.
+* **Keyword & Entity Extraction:** The LLM extracts key entities (names, dates, dimensions, revenue terms) in English.
+* **Vectorization:** The system generates vector embeddings for both the original transcription and the English summary.
 
 ### 3.4 Hierarchical Organization
-* **Recursive Folder Structure:** The database must support self-referencing folders to allow infinite nesting depths (e.g., `Root > Agricultural Land > Village Name > Specific Acre > Civil Case`).
-* **Manual Navigation:** The UI shall feature a file-explorer style interface to create, rename, navigate, and manually drop files into specific folders.
+* **Recursive Folder Structure:** Support self-referencing folders for infinite nesting depths.
+* **Manual Navigation:** File-explorer style interface to create, rename, navigate, and manually drop files into folders.
 
 ### 3.5 AI-Assisted Smart Routing
-* **Voice Command Routing:** The user can append a routing instruction to their dictation (e.g., *"Place this in the judge's ongoing case folder"*).
-* **Constrained JSON Output:** The backend shall provide the LLM with the user's existing directory tree and force the LLM to output a strict JSON payload containing only the target `folder_id`.
-* **Security & Validation:** The backend must independently validate the LLM's JSON output (e.g., via Zod) to ensure the `folder_id` exists and belongs to the authenticated user before executing any database insertion.
+* **Voice Command Routing:** The user can dictate a routing instruction (e.g., *"Place this in the judge's ongoing case folder"*).
+* **System-Assisted Placement:** The system will evaluate the user's command against the existing folder structure and securely place the document in the correct folder, requesting user confirmation if needed.
 
 ### 3.6 Explicit Cross-Document Linking
-* **Manual Linking:** The UI shall allow the user to explicitly link any two Primary Documents across the entire system regardless of their folder location (e.g., linking a new *Inteqal* to an old *Registry*).
-* **Relationship Annotation:** When creating a link, the user must be able to input a text description defining the relationship (e.g., *"This court order supersedes the 2018 registry"*).
+* **Manual Linking:** Explicitly link any two Primary Documents across the system (e.g., linking a new *Inteqal* to an old *Registry*).
+* **Relationship Annotation:** Input a text description defining the link relationship (e.g., *"This court order supersedes the 2018 registry"*).
 
 ### 3.7 Multilingual Semantic Search
-* **Contextual Retrieval:** The search bar must accept queries in English or Roman Urdu, converting the query into a vector to find semantically matching documents across the multilingual embeddings.
-* **Granular Entity Filtering:** The search UI must provide toggles/dropdowns to restrict search results to:
-  * `Search All`
-  * `Search Folders Only` (returns strictly folder objects, ignoring the files inside)
-  * `Search Files Only` (returns strictly document objects)
+* **Contextual Retrieval:** Accept queries in English or Roman Urdu to find semantically matching documents.
+* **Granular Entity Filtering:** Toggles to restrict search results to: `Search All`, `Search Folders Only`, or `Search Files Only`.
 
 ### 3.8 Document Tagging & State Management
-* **Custom Status Badges:** Users can create and apply functional colored tags to Primary Documents (e.g., `[Pending Mutation]`, `[Active Dispute]`, `[Resolved]`).
-* **Tag Search Integration:** Tags must be injected into the vector database metadata, allowing users to filter semantic search results strictly by specific document states.
+* **Custom Status Badges:** Apply functional colored tags to Primary Documents (e.g., `[Pending Mutation]`, `[Resolved]`).
+* **Tag Search Integration:** Filter semantic search results strictly by specific document states.
 
 ### 3.9 Timeline & Deadline (Tareekh) Management
-* **Chronological Folder View:** Every folder shall feature a "Timeline Toggle." When activated, the UI sorts and displays all documents chronologically based on a user-provided `Event_Date`.
-* **Manual Deadline Tracking:** Users can manually input a `Hearing_Date` and `Hearing_Note` on any document.
-* **Upcoming Dashboard:** The application home screen shall feature a dashboard aggregating and displaying all pending deadlines/hearings across all folders that are greater than or equal to the current date.
+* **Chronological Folder View:** A "Timeline Toggle" sorts all documents in a folder chronologically based on a user-provided `Event_Date`.
+* **Manual Deadline Tracking:** Input a `Hearing_Date` and `Hearing_Note` on any document.
+* **Upcoming Dashboard:** Home screen dashboard aggregating all pending deadlines across all folders.
 
 ### 3.10 Multi-Document AI Synthesis & Export
-* **Checkbox Selection:** The UI shall allow users to multi-select several Primary Documents within a folder or search result.
-* **Prompt Configuration:** Users can define and save default learning/comparison prompts in their settings (e.g., *"Explain the terms in this text"*, or *"Compare the boundaries in these two documents"*).
-* **Clipboard Bundling:** A dedicated export button will concatenate the images (if supported by clipboard/API), the transcribed text, the generated summaries, and the pre-configured prompt into a single payload copied to the user's system clipboard for instant pasting into an external LLM.
+* **Checkbox Selection:** Multi-select several Primary Documents.
+* **Prompt Configuration:** Save default learning/comparison prompts (e.g., *"Explain the terms in this text"*).
+* **Native OS Export:** A dedicated export button will bundle the selected images, transcribed text, and prompts, invoking the device's native sharing menu to pass the payload directly to external AI applications installed on the device.
 
 ---
 
-## 4. Architectural & Security Constraints
-* **AI Database Isolation:** LLMs must never have direct write access to the database or SQL execution privileges. All AI routing must occur via validated JSON payloads.
-* **Relational Integrity:** The system must use a robust SQL database (e.g., PostgreSQL) to handle the complex self-referencing folder hierarchies and parent-child document relationships.
-* **Vector Separation:** A dedicated Vector Database (e.g., Pinecone, Qdrant, or pgvector) must be utilized alongside the relational database to handle embedding storage and semantic similarity execution.
+## 4. Architectural Directives & Constraints (The "How" - Mandatory)
+
+To prevent technical debt, N+1 queries, and hallucination loops, the execution AI must adhere to the following constraints:
+
+* **Database & Vector Isolation:** Use **PostgreSQL exclusively**. Enable the `pgvector` extension for all vector storage and semantic search. **DO NOT** use Pinecone, ChromaDB, or Qdrant. Embeddings must be stored in the same tables as document metadata to guarantee ACID compliance.
+* **Hierarchical State (No N+1):** Use the PostgreSQL `ltree` extension to manage the recursive folder structures. Standard recursive joins or parent_id lookups via TypeORM/Prisma are forbidden for deep folder traversals to prevent N+1 degradation.
+* **AI Smart Routing Pre-Filter:** The entire folder tree must **never** be passed to the LLM context window. The backend must execute a vector-search pre-filter to retrieve the Top 5 most semantically relevant folders based on the voice command, and pass *only* those 5 candidates to the LLM to output a strictly validated JSON `folder_id`.
+* **Speech-to-Text (STT) Domain Normalization:** The ingestion pipeline must include a dictionary normalizer or targeted LLM prompt step immediately after the STT transcription to correct hallucinated Pakistani revenue terminology (e.g., converting "Khabra" back to "Khasra") before it is embedded.
+* **Android Export Mechanism:** For multi-document export, **do not** use the Android `ClipboardManager` for bundling images and text. Implement `Intent.ACTION_SEND_MULTIPLE` using `ShareCompat.IntentBuilder` to pass `content://` URIs and `EXTRA_TEXT` natively to external apps via the OS ShareSheet.
 
 ---
 
 ## 5. Out of Scope (Future Phases)
 * Automated edge-detection and image auto-cropping.
-* Direct in-app native LLM chat (replaced by Clipboard Bundling in MVP).
+* Direct in-app native LLM chat.
 * Geospatial/Map View integration for dropping pins on specific acres.
 * Automated CRON job push notifications for deadlines.
-* Role-Based Access Control (RBAC) and secure read-only URL generation for external sharing.
+* Role-Based Access Control (RBAC) and secure read-only URL generation.
