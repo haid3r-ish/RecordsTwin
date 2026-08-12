@@ -1,6 +1,6 @@
 # Business Requirements Document (BRD)
 **Project Name:** RecordTwin (Intelligent Land & Legal Records Management System)
-**Document Version:** 1.1 (MVP Scope - Architecturally Hardened)
+**Document Version:** 001 (MVP Scope - Architecturally Hardened)
 
 ---
 
