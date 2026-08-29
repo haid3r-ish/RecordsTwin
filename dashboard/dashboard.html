@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Digital Vault — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :root {
+      --global-canvas: #E6E8EA;
+      --surface-main: #FFFFFF;
+      --surface-nested: #F3F4F6;
+      --primary-accent: #4A2884;
+      --primary-bg-soft: #F3E8FF;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --border-subtle: #E5E7EB;
+      --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --shadow-heavy: 0 -4px 10px rgba(0, 0, 0, 0.08);
+      --screen-max: 430px;
+      --seg-track-bg: #E5E5EA;
+      --seg-track-border: #D1D1D6;
+      --seg-btn-active-bg: #FFFFFF;
+      --seg-btn-active-text: #111111;
+      --seg-btn-inactive-text: #8E8E93;
+      --seg-btn-hover-text: #111111;
+    }
+
+    html.dark {
+      --global-canvas: #0A0B0C;
+      --surface-main: #242629;
+      --surface-nested: #1A1D21;
+      --primary-accent: #A78BFA;
+      --primary-bg-soft: #2E1065;
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --border-subtle: #374151;
+      --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-heavy: 0 -4px 15px rgba(0, 0, 0, 0.6);
+      --seg-track-bg: #323438;
+      --seg-track-border: #3F4145;
+      --seg-btn-active-bg: #1E1F22;
+      --seg-btn-active-text: #FFFFFF;
+      --seg-btn-inactive-text: #9CA3AF;
+      --seg-btn-hover-text: #E5E7EB;
+    }
+
+    html {
+      background-color: #2D3130;
+      display: flex;
+      justify-content: center;
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--global-canvas);
+      color: var(--text-primary);
+      width: 100%;
+      max-width: var(--screen-max);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shrink-0 {
+      flex-shrink: 0;
+    }
+
+    /* ===== STATUS BAR ===== */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-bar-right svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== SCROLLABLE CONTENT ===== */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px 16px;
+      background-color: transparent;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--surface-main);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+      border: none;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .pill .sync-icon {
+      width: 13px;
+      height: 13px;
+      color: var(--text-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .notif-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .notif-btn svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-secondary);
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid var(--white);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--surface-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .avatar svg {
+      width: 20px;
+      height: 20px;
+      color: #B0B0B5;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-bar-wrap {
+      padding: 0 16px 12px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--surface-nested);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 11px 14px;
+      width: 100%;
+    }
+
+    .search-bar svg {
+      width: 17px;
+      height: 17px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .search-bar span {
+      flex: 1;
+      font-size: 15px;
+      color: inherit;
+      font-weight: 400;
+      letter-spacing: -0.1px;
+    }
+
+    /* ===== ANALYTICS CAROUSEL CONTAINER ===== */
+    .analytics-container {
+      margin: 0 16px 12px;
+      background-color: var(--surface-main);
+      border-radius: 16px;
+      position: relative;
+      height: 180px;
+      max-height: 180px;
+      overflow: hidden;
+      box-shadow: var(--shadow-main);
+    }
+
+    .carousel-wrapper {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .carousel-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      display: flex;
+      flex: 0 0 100%;
+    }
+
+    /* Slides - Centered Layouts */
+    .placeholder-text {
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Slide 2 & 3 - Centered */
+    .slide-centered {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Navigation Indicators */
+    .carousel-indicators {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .indicator {
+      height: 6px;
+      width: 6px;
+      border-radius: 3px;
+      background: #8E8E93;
+      transition: all 0.3s ease;
+    }
+
+    .indicator.active {
+      width: 16px;
+      background-color: var(--primary-accent);
+    }
+
+    /* ===== QUICK ACTIONS ===== */
+    .quick-actions-card {
+      margin: 0 16px 12px;
+      background-color: var(--surface-main);
+      border-radius: 16px;
+      box-shadow: var(--shadow-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .section-header-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header-icon-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .grid-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    .chevron-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: transform 0.3s ease;
+    }
+
+    .chevron-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .section-header-btn[aria-expanded="true"] .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .qa-content {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+
+    .qa-content.collapsed {
+      grid-template-rows: 0fr;
+    }
+
+    .qa-content-inner {
+      overflow: hidden;
+    }
+
+    .actions-carousel {
+      display: flex;
+      gap: 16px;
+      padding: 0 16px 18px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .actions-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .action-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .action-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background-color: var(--surface-nested);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-circle:hover, .action-circle:active {
+      background-color: var(--primary-bg-soft);
+      color: var(--primary-accent);
+      transform: scale(0.92);
+    }
+
+    .action-circle svg {
+      width: 22px;
+      height: 22px;
+      color: inherit;
+    }
+
+    .action-label {
+      font-size: 11.5px;
+      color: var(--text-primary);
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ===== BOTTOM FILE MANAGEMENT CONTAINER ===== */
+    .mb-24 {
+      margin-bottom: 62px !important;
+    }
+
+    .mb-4 {
+      margin-bottom: 12px !important;
+    }
+
+    .files-container {
+      margin: 0 16px;
+      background-color: var(--surface-main);
+      border-radius: 16px;
+      padding: 16px 14px 16px;
+      height: fit-content;
+      max-height: 100%;
+      flex: 0 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: margin-bottom 0.3s ease;
+      box-shadow: var(--shadow-main);
+    }
+
+    /* Segmented Pill Toggle */
+    .seg-toggle {
+      display: flex;
+      background-color: var(--seg-track-bg);
+      border-radius: 9999px;
+      padding: 4px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+      border: 1px solid var(--seg-track-border);
+    }
+
+    .seg-btn {
+      flex: 1;
+      border: none;
+      background-color: transparent;
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--seg-btn-inactive-text);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .seg-btn:hover {
+      color: var(--seg-btn-hover-text);
+    }
+
+    .seg-btn.active {
+      background-color: var(--seg-btn-active-bg);
+      color: var(--seg-btn-active-text);
+      font-weight: 600;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    /* File List */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-bottom: 0;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .file-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .file-row {
+      display: flex;
+      align-items: center;
+      background-color: transparent;
+      border-bottom: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 14px;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .file-row:active {
+      background: #F8F8FA;
+      transform: scale(0.98);
+    }
+
+    .file-thumb {
+      width: 40px;
+      height: 50px;
+      border-radius: 8px;
+      background: #EEEEF0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .file-thumb svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-tertiary);
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      font-weight: 400;
+    }
+
+    .file-chevron {
+      flex-shrink: 0;
+      color: var(--text-tertiary);
+    }
+
+    .file-chevron svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== FLOATING BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 100%;
+      max-width: var(--screen-max);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--surface-main);
+      border-radius: 32px 32px 0 0;
+      box-shadow: var(--shadow-heavy);
+      padding: 11px 26px;
+      padding-bottom: max(11px, env(safe-area-inset-bottom));
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .translate-y-full {
+      transform: translateY(100%);
+    }
+
+    .nav-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 12px;
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .nav-item.active svg {
+      color: var(--primary-accent);
+    }
+  </style>
+</head>
+
+<body class="">
+
+
+
+  <!-- SCROLLABLE CONTENT -->
+  <div class="content">
+
+    <!-- HEADER -->
+    <div class="header shrink-0">
+      <div class="header-left">
+        <div class="pill">
+          <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6" />
+            <path d="M2.5 22v-6h6" />
+            <path d="M3.5 12a9 9 0 0 1 14.68-5.19L21.5 8" />
+            <path d="M20.5 12a9 9 0 0 1-14.68 5.19L2.5 16" />
+          </svg>
+          Synced
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" class="notif-btn" aria-label="Toggle Theme">
+          <!-- Sun (Light Mode) -->
+          <svg class="sun-icon hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <!-- Moon (Dark Mode) -->
+          <svg class="moon-icon block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <button class="notif-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span class="notif-badge"></span>
+        </button>
+        <div class="avatar">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-bar-wrap shrink-0">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span>Search documents, records, plots…</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" y1="19" x2="12" y2="23" />
+          <line x1="8" y1="23" x2="16" y2="23" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- ANALYTICS CAROUSEL SECTION -->
+    <div class="analytics-container shrink-0">
+      <div class="carousel-wrapper" id="carouselWrapper">
+        <!-- Slide 1 (Alerts) -->
+        <div class="carousel-slide">
+          <div class="slide-centered">
+            <span class="placeholder-text">Critical Storage Warning</span>
+          </div>
+        </div>
+        <!-- Slide 2 (Sync Status) -->
+        <div class="carousel-slide">
+          <div class="slide-centered">
+            <span class="placeholder-text">Cloud Sync Status</span>
+          </div>
+        </div>
+        <!-- Slide 3 (Onboarding) -->
+        <div class="carousel-slide">
+          <div class="slide-centered">
+            <span class="placeholder-text">Welcome Tips</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Navigation Indicators -->
+      <div class="carousel-indicators" id="carouselIndicators">
+        <div class="indicator active"></div>
+        <div class="indicator"></div>
+        <div class="indicator"></div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions-card shrink-0">
+      <button class="section-header-btn" id="qaToggleBtn" aria-expanded="false">
+        <span class="section-title">Quick Actions</span>
+      <div class="header-icon-group">
+        <svg class="grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+        </svg>
+        <div class="chevron-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </div>
+      </button>
+
+      <div id="quick-actions-content" class="qa-content collapsed">
+        <div class="qa-content-inner">
+        <div class="actions-carousel">
+          <div class="action-item">
+            <div class="action-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </div>
+            <span class="action-label">New Doc</span>
+          </div>
+          <div class="action-item">
+            <div class="action-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </div>
+            <span class="action-label">Quick Snap</span>
+          </div>
+          <div class="action-item">
+            <div class="action-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+            </div>
+            <span class="action-label">Quick Voice</span>
+          </div>
+          <div class="action-item">
+            <div class="action-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+            </div>
+            <span class="action-label">Sub-Doc</span>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILE MANAGEMENT SECTION -->
+    <div class="files-container mb-24" id="document-container">
+      <!-- Segmented Toggle Header -->
+      <div class="shrink-0">
+        <div class="seg-toggle">
+          <button class="seg-btn active">Recent</button>
+          <button class="seg-btn">Pinned</button>
+          <button class="seg-btn">Drafts</button>
+        </div>
+      </div>
+
+      <!-- File List -->
+      <div class="file-list">
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Khasra No. 45 — Mutation Record</div>
+            <div class="file-meta">PDF · 2.4 MB · 12 Aug 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Girdawari Report 2024</div>
+            <div class="file-meta">PDF · 1.1 MB · 3 Jul 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Court Decree — Plot 12B</div>
+            <div class="file-meta">DOCX · 890 KB · 28 Jun 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Fard — Revenue Extract 2023</div>
+            <div class="file-meta">PDF · 560 KB · 15 May 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Jamabandi Record — Tehsil Multan</div>
+            <div class="file-meta">PDF · 3.2 MB · 02 Apr 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Registry / Sale Deed — Phase 2</div>
+            <div class="file-meta">PDF · 4.5 MB · 20 Mar 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Affidavit of Ownership</div>
+            <div class="file-meta">DOCX · 200 KB · 11 Feb 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="file-row">
+          <div class="file-thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name">Tax Assessment Form 2025</div>
+            <div class="file-meta">PDF · 1.5 MB · 05 Jan 2025</div>
+          </div>
+          <div class="file-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <!-- FLOATING BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-item active" aria-label="Home">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg>
+    </button>
+    <button class="nav-item" aria-label="Vault">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+      </svg>
+    </button>
+    <button class="nav-item" aria-label="Add">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+    </button>
+    <button class="nav-item" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    </button>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Bottom Nav Scroll Logic
+      const fileList = document.querySelector('.file-list');
+      const bottomNav = document.getElementById('bottom-nav');
+      const docContainer = document.getElementById('document-container');
+      let scrollTimeout;
+
+      fileList.addEventListener('scroll', () => {
+        bottomNav.classList.add('translate-y-full');
+        docContainer.classList.remove('mb-24');
+        docContainer.classList.add('mb-4');
+
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          bottomNav.classList.remove('translate-y-full');
+          docContainer.classList.remove('mb-4');
+          docContainer.classList.add('mb-24');
+        }, 2000);
+      }, { passive: true });
+      const qaToggleBtn = document.getElementById('qaToggleBtn');
+      const qaContent = document.getElementById('quick-actions-content');
+
+      qaToggleBtn.addEventListener('click', () => {
+        const isExpanded = qaToggleBtn.getAttribute('aria-expanded') === 'true';
+        if (isExpanded) {
+          qaToggleBtn.setAttribute('aria-expanded', 'false');
+          qaContent.classList.add('collapsed');
+        } else {
+          qaToggleBtn.setAttribute('aria-expanded', 'true');
+          qaContent.classList.remove('collapsed');
+        }
+      });
+
+      const wrapper = document.getElementById('carouselWrapper');
+      const slides = wrapper.querySelectorAll('.carousel-slide');
+      const indicators = document.getElementById('carouselIndicators').querySelectorAll('.indicator');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = Array.from(slides).indexOf(entry.target);
+            indicators.forEach((ind, i) => {
+              if (i === index) {
+                ind.classList.add('active');
+              } else {
+                ind.classList.remove('active');
+              }
+            });
+          }
+        });
+      }, {
+        root: wrapper,
+        threshold: 0.6 // Trigger when 60% of the slide is visible
+      });
+
+      slides.forEach(slide => observer.observe(slide));
+
+      // Theme Toggle Logic
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      themeToggleBtn.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+      });
+    });
+  </script>
+</body>
+
+</html>

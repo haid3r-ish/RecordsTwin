@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Notifications Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0A0B0C;
+            font-family: sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Fixed size for all notification cards to maintain uniformity */
+        .notif-card {
+            height: 90px;
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-center h-screen bg-gray-100 dark:bg-[#121212]">
+
+    <!-- Mobile Frame Wrapper -->
+    <div class="relative w-full max-w-md h-full overflow-hidden shadow-2xl bg-[#E6E8EA] dark:bg-[#0A0B0C] flex flex-col transition-colors duration-300">
+
+        <!-- TOP APP BAR (Header + Nav) -->
+        <div class="w-full bg-[#E6E8EA] dark:bg-[#0A0B0C] shrink-0 shadow-sm z-10 transition-colors duration-300">
+            <!-- HEADER -->
+            <div class="flex justify-between items-center px-5 pt-6 pb-2">
+                <!-- Back Arrow -->
+                <button class="text-[#111827] dark:text-[#F9FAFB] hover:opacity-75 p-1 -ml-1 transition-opacity">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Mark All Read -->
+                <button class="text-[#4A2884] dark:text-[#A78BFA] text-sm font-semibold hover:opacity-75 transition-opacity">
+                    Mark All Read
+                </button>
+            </div>
+
+            <!-- SEGMENTED CONTROL -->
+            <div class="w-full">
+                <div class="px-5 pb-4 pt-2">
+                    <div class="flex bg-[#F3F4F6] dark:bg-[#1A1D21] rounded-lg p-1 w-full transition-colors duration-300">
+                        <!-- Active Tab -->
+                        <button
+                            class="flex-1 bg-[#E6E8EA] dark:bg-[#0A0B0C] text-[#4A2884] dark:text-[#A78BFA] text-sm font-semibold rounded-md py-1.5 shadow-sm transition-colors duration-300">All</button>
+                        <!-- Inactive Tabs -->
+                        <button
+                            class="flex-1 text-[#6B7280] dark:text-[#9CA3AF] hover:text-[#111827] dark:hover:text-[#F9FAFB] text-sm font-medium rounded-md py-1.5 transition-colors duration-300">Alerts</button>
+                        <button
+                            class="flex-1 text-[#6B7280] dark:text-[#9CA3AF] hover:text-[#111827] dark:hover:text-[#F9FAFB] text-sm font-medium rounded-md py-1.5 transition-colors duration-300">Activity</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATION LIST -->
+        <div class="flex-1 px-5 pt-5 pb-8 overflow-y-auto bg-[#F3F4F6] dark:bg-[#0A0B0C] transition-colors duration-300">
+            <div id="alerts-section">
+
+                <!-- 1. Sync Conflict (Alert) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 border border-[#4A2884]/20 dark:border-[#A78BFA]/20 shadow-md transition-colors duration-300">
+                    <div class="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-[#4A2884] dark:bg-[#A78BFA]"></div>
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg transition-colors">⚠️</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Sync Conflict Detected</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">Khasra 45 modified elsewhere.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2 font-medium">Just now</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end">
+                        <button class="bg-[#FBBF24] dark:bg-[#FCD34D] text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Resolve</button>
+                    </div>
+                </div>
+
+                <!-- 2. Storage Pre-Purge (Alert) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 border border-[#4A2884]/20 dark:border-[#A78BFA]/20 shadow-md transition-colors duration-300">
+                    <div class="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-[#4A2884] dark:bg-[#A78BFA]"></div>
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg transition-colors">🗑️</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Storage Limit Reaching</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">14 documents will lose local images.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2 font-medium">2h ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end">
+                        <button class="bg-[#60A5FA] dark:bg-[#93C5FD] text-white dark:text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Review</button>
+                    </div>
+                </div>
+
+                <!-- 3. Pinned Storage Overflow (Alert) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 border border-[#4A2884]/20 dark:border-[#A78BFA]/20 shadow-md transition-colors duration-300">
+                    <div class="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-[#4A2884] dark:bg-[#A78BFA]"></div>
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg transition-colors">📌</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Pinned Storage Overflow</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">Pinned images taking up too much space.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2 font-medium">5h ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end">
+                        <button class="bg-[#FBBF24] dark:bg-[#FCD34D] text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Manage</button>
+                    </div>
+                </div>
+
+                <!-- 4. 7-Day Un-Synced (Alert) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 border border-[#4A2884]/20 dark:border-[#A78BFA]/20 shadow-md transition-colors duration-300">
+                    <div class="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-[#4A2884] dark:bg-[#A78BFA]"></div>
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg transition-colors">☁️</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Backup Overdue</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">23 images un-synced for 7 days.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2 font-medium">1d ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end">
+                        <button class="bg-[#60A5FA] dark:bg-[#93C5FD] text-white dark:text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Sync</button>
+                    </div>
+                </div>
+
+                <!-- 5. STT Model Missing (Alert) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 border border-[#4A2884]/20 dark:border-[#A78BFA]/20 shadow-md transition-colors duration-300">
+                    <div class="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-[#4A2884] dark:bg-[#A78BFA]"></div>
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg transition-colors">🎙️</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Urdu STT Missing</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">Speech model required for offline voice typing.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2 font-medium">2d ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end">
+                        <button class="bg-[#60A5FA] dark:bg-[#93C5FD] text-white dark:text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Setup</button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="read-section">
+                <!-- 6. AI Text Washing (Activity) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 shadow-sm transition-colors duration-300">
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg opacity-70 transition-colors">✨</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden opacity-70">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Processing Complete</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">Sale Deed 2024 standardized.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2">2d ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0 flex justify-end opacity-70">
+                        <button class="bg-[#60A5FA] dark:bg-[#93C5FD] text-white dark:text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">View</button>
+                    </div>
+                </div>
+
+                <!-- 7. Image Sync Done (Activity) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 shadow-sm transition-colors duration-300">
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg opacity-70 transition-colors">☁️</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden opacity-70">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Images Backed Up</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">24 photos successfully synced to cloud.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2">3d ago</span>
+                    </div>
+                    <div class="w-[75px] shrink-0"></div>
+                </div>
+
+                <!-- 8. Draft Saved (Activity) -->
+                <div class="notif-card bg-[#E6E8EA] dark:bg-[#242629] rounded-xl p-3 flex items-center relative mb-3 shadow-sm transition-colors duration-300">
+                    <div class="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-[#1A1D21] flex items-center justify-center shrink-0 ml-3 text-lg opacity-70 transition-colors">💾</div>
+                    <div class="flex-1 flex flex-col justify-center h-full px-3 overflow-hidden opacity-70">
+                        <span class="text-[#111827] dark:text-[#F9FAFB] font-semibold text-sm truncate">Draft Auto-Saved</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-xs truncate mt-1">Pending text secured locally.</span>
+                        <span class="text-[#6B7280] dark:text-[#9CA3AF] text-[10px] mt-2">Aug 24</span>
+                    </div>
+                    <div class="w-[75px] shrink-0"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

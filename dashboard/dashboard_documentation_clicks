@@ -1,0 +1,157 @@
+# RecordTwin Dashboard — UX Architecture & Action Mapping
+
+---
+
+## Section 1: Carousel Strategy
+
+The Carousel is prime real estate — the first thing the user's eyes hit after the header. It must show **contextually urgent, time-sensitive information**, not static data the user can find elsewhere. Based on the full requirements analysis:
+
+### Keep
+- **Sync Status Dock** — This is the heartbeat of the app. The Split-Sync pipeline (F8) has TWO independent sync channels (automatic text sync + manual image sync). This dock must show:
+  - Text sync progress (automatic, background)
+  - Image upload queue count + "Sync Images" trigger button (manual, user-initiated)
+  - The "X images not backed up" persistent badge (F9) lives here naturally
+  - **Why:** Users on expensive prepaid data need to see exactly what's consuming bandwidth at all times. This is the #1 anxiety point for the target demographic.
+
+- **Critical Alerts Dock** — Non-dismissable, escalating system warnings. Specific alerts from the requirements:
+  - Storage pre-purge warning: *"These documents will lose their local images"* with Confirm/Cancel (F9)
+  - 7-day un-synced image warning — non-dismissable (F9)
+  - Pinned storage overflow: *"Your pinned images are consuming too much space"* (F9)
+  - AI text-washing completion notification (F15)
+  - Sync conflict alert — 409 Conflict requiring merge/override decision (Section 6.2)
+  - **Why:** These are time-critical actions that require user decision. Burying them in a notification list means they get ignored. Putting them front-and-center in the carousel forces acknowledgement.
+
+### Remove
+- **Data Graphs Dock** — Remove from MVP. The app is a document vault, not an analytics dashboard. There is no feature in the entire master architecture that produces graph-worthy data. The Wheel Picker we built in the HTML mock was a design exploration, but it has no real data source behind it.
+  - **Why:** Adding graphs just to fill space violates the Ultra-Minimalist principle. The carousel should only hold items that demand attention.
+
+### Add (New)
+- **Onboarding Tips Dock (First 3 Days Only)** — Based on F15's "First 3 Days Rule" and F16's "Smart Empty State":
+  - Show contextual tips in Urdu: *"آواز سے لکھیں"* (Dictate with voice), *"تصویر لگائیں"* (Attach an image)
+  - Auto-dismiss after 3 days of install, replaced by Sync Status as default dock
+  - **Why:** New users face a blank screen. This carousel dock acts as an interactive guide during the critical first-72-hours retention window.
+
+### Final Carousel Dock Order (Priority)
+1. **Critical Alert** (auto-opens if any alert exists on app launch — highest priority)
+2. **Sync Status** (auto-opens if sync is active and no critical alert exists)
+3. **Onboarding Tips** (only during first 3 days, lowest priority)
+
+---
+
+## Section 2: Action Mapping Table
+
+Every single clickable action extracted from F1–F16 + Future Plan, mapped to its correct UI surface.
+
+| # | Action / Feature | Recommended Placement | Reasoning |
+|---|---|---|---|
+| 1 | **New Document** (Compound Flow) | **Quick Action** (Primary) | The full workflow (Topic → Folder → Image → Dictate). For when the user has time to file it properly. |
+| 2 | **Quick Snap 📷** | **Quick Action** | Instantly opens camera for urgent field capture. Optional title. Saves to Drafts. Bypasses the full compound flow. |
+| 3 | **Quick Voice 🎤** | **Quick Action** | Instantly opens mic for urgent dictation. Optional title. Saves to Drafts. Supports Incremental Auto-Save (F1). |
+| 4 | **Sub-Document 📎** | **Quick Action** | Rapid creation of an Attachment (F4). User snaps photos/adds notes and picks a parent document. If interrupted, saves to Drafts as an orphan. |
+| 5 | **Manual Image Sync** ("Sync Images") | **Sync Pill (Header)** + **Sync Status Carousel Dock** | The Sync Pill transforms into an actionable "Sync Now" button when images are pending. Tapping it opens the Sync Status dock with detailed progress. |
+| 6 | **Browse All Folders** (Drill-Down F5) | **Bottom Nav Tab** ("Vault") | Full folder hierarchy with breadcrumb trail is a standalone screen, not a dashboard action. |
+| 7 | **Dedicated Drafts Inbox** | **Vault Screen (Top Section)** | The "Inbox Zero" view for incomplete items (Quick Snaps, Quick Voice, Orphan Sub-Docs). Uses filters (Images Only, Voice Only, Has Title). |
+| 8 | **Search** (Dual-Script FTS5 F3) | **Search Bar** (Already on Dashboard) | Already placed. The Script Router logic (Section 6.4) and debounce live here. |
+| 9 | **Export / Share PDF** (F14) | **Document Viewer Context Menu** | Export only makes sense when viewing a specific document. |
+| 10 | **Link Documents** (F7) | **Document Viewer — "Links" Tab** | Peer-to-peer connection requires a specific document context. |
+| 11 | **Pin/Unpin Document or Folder** (F9) | **Long-press Context Menu** | Contextual action on a specific item. |
+| 12 | **Manual Purge Cached Media** (F9) | **Long-press / Swipe Action** | Per-document or per-folder action. Deeply contextual. |
+| 13 | **Create New Folder** | **Quick Action** (Expand Drawer) | Useful shortcut, goes in the expanded Quick Action grid. |
+| 14 | **Add Attachment to Document** (F4) | **Document Viewer** | Requires an open document (though the Sub-Document quick action acts as a shortcut for this). |
+| 15 | **Move/Copy Document or Folder** (F5) | **Long-press Context Menu** | Contextual reorganization action. |
+| 16 | **Delete Folder** (Two-Option Dialog F5) | **Long-press Context Menu** | Requires the two-option dialog (Delete/Move). |
+| 17 | **Split-Screen Verification** (F10) | **Document Viewer** Toggle | Only available when viewing a multi-page document. |
+| 18 | **Theme Toggle** (Light/Dark) | **Profile / Settings Screen** | The HTML mock toggle is prototype-only. In the real app it lives in Profile. |
+| 19 | **App Lock (PIN/Biometric)** (F12) | **Settings Screen** | Security configuration. |
+| 20 | **Cache Limit Configuration** (F9) | **Settings Screen** | User-configurable storage parameter. |
+| 21 | **Backup & Restore** (F13) | **Settings Screen** | Account-level recovery action. |
+| 22 | **Notification Preferences** (F15) | **Settings Screen** | Toggle push/local notification types. |
+| 23 | **Urdu STT Model Download** (F1) | **First-Launch Wizard** + **Settings** | Initial setup wizard handles it. Settings allows re-download. |
+| 24 | **Edit Quick Actions** | **Quick Action Expand Drawer** | The "Edit Mode" toggle enables customization of the ribbon. |
+| 25 | **View Notifications List** | **Notification Icon (Header)** | Tapping the bell icon shows the full notification history list. |
+| 26 | **Profile / Account** | **Profile Avatar (Header)** | Tapping avatar opens profile with account details, storage meter. |
+
+### Quick Action Summary (Dashboard Ribbon)
+
+**Visible on Dashboard (Default Set — User Customizable):**
+1. ➕ **New Document** (The full compound flow)
+2. 📷 **Quick Snap** (Instant camera → Drafts)
+3. 🎤 **Quick Voice** (Instant dictation → Drafts)
+4. 📎 **Sub-Document** (Attachment creation → Link to parent)
+
+**Available in Expand Drawer (Full Grid):**
+- All of the above, plus **New Folder 📁** and any future additions.
+- The "Edit Mode" toggle allows users to Add, Remove, and Reorder which buttons appear in the minimized dashboard ribbon.
+
+> [!IMPORTANT]
+> **Voice Dictate is NOT a standalone Quick Action.** Wait—to clarify based on recent insights: We now have a **"Quick Voice"** action for urgent field capture, but the primary **"New Document"** flow still enforces Topic → Image → Dictate as a compound flow for properly structured filings.
+
+---
+
+## Section 3: Navigation Decision
+
+### Verdict: **KEEP the Bottom Navigation Bar**
+
+**Reasoning:** The app has two fundamentally different browsing modes that cannot collapse into each other:
+
+1. **Dashboard Mode** — The current screen. Shows Recent/Pinned/Drafts as flat lists, quick actions, carousel alerts, and search. This is the "what needs my attention right now" view.
+
+2. **Vault Mode (Folder Browsing)** — The full hierarchical Drill-Down Navigation (F5). Inside the Vault, there is a dedicated **Drafts Inbox** at the very top. This is the "let me find a specific document" and "let me process my incomplete drafts" view.
+
+These are **mutually exclusive navigation paradigms**. The Bottom Nav provides the clean separation:
+
+| Tab | Purpose |
+|---|---|
+| **Home** (Dashboard) | Current screen — recent activity, alerts, quick actions |
+| **Vault** (Folder Browser) | Full folder hierarchy + Dedicated Drafts Inbox |
+| **+ (Add)** | Shortcut to New Document flow |
+| **Settings** | App Lock, Storage, Theme, Backup, Notifications |
+
+---
+
+## Section 4: Nested User Flows
+
+### Flow 1: New Document (The Compound Flow)
+Triggered by tapping the **"New Document"** Quick Action. For when the user has time to file properly.
+1. **Step 1:** Topic Entry Screen modal opens. User types topic. Smart Folder Suggestion (F5) routes it.
+2. **Step 2:** Image Capture Screen. User snaps photos of the physical document.
+3. **Step 3:** Voice Dictation Screen (Split-Screen Mode). Captured images on top, dictation on bottom.
+4. **Step 4:** Save & Background Processing. Document is filed, text syncs, and text-washing begins.
+
+### Flow 2: Quick Snap & Quick Voice (Standalone Capture)
+Triggered by tapping **"Quick Snap"** or **"Quick Voice"**. For urgent field capture.
+1. **Step 1:** Camera or Mic opens instantly. No topic required upfront.
+2. **Step 2:** User captures multiple images OR dictates multiple segments (with auto-save).
+3. **Step 3:** A minimal bottom sheet appears asking for an *optional* title.
+4. **Step 4:** Document is saved directly to **Drafts** (with `sync_status = pending`), regardless of whether a title was provided. 
+
+### Flow 3: Sub-Document Creation
+Triggered by tapping the **"Sub-Document"** Quick Action.
+1. **Step 1:** Creation interface opens. User snaps images, adds a `relation_note` (e.g., "Buyer's CNIC"), and dictates content.
+2. **Step 2:** App prompts: *"Which document does this belong to?"* with a search picker.
+3. **Step 3:** 
+   - If user picks a parent: Sub-document is attached under that parent.
+   - If user skips/cancels: Saved to **Drafts** with an "📎 Unlinked Sub-Doc" badge.
+
+### Flow 4: Notification Panel
+Triggered by tapping the **Bell Icon** in the header.
+1. **Step 1:** Dropdown panel slides over the dashboard.
+2. **Step 2:** Displays a chronological list of notifications (Critical vs Informational).
+3. **Step 3:** Tapping navigates to context (Document Viewer, Carousel Dock, Merge Dialog).
+
+### Flow 5: Profile Sidebar
+Triggered by tapping the **Profile Avatar** in the header.
+1. **Step 1:** Sidebar slides in from the right.
+2. **Step 2:** Displays User Avatar, Storage Meter (Cache vs. Pinned), Un-synced Badge, and Quick Links (Theme, Lock, Storage, Backup).
+
+### Flow 6: Quick Action Expand Drawer
+Triggered by tapping the **4-Square Grid Icon**.
+1. **Step 1:** Large bottom sheet slides up.
+2. **Step 2:** Displays full grid of all available action buttons.
+3. **Step 3:** "Edit ✏️" toggle enters jiggle mode, allowing Add/Remove/Reorder of the ribbon.
+
+### Flow 7: Document Viewer (From Dashboard List)
+Triggered by tapping any document.
+1. **Step 1:** Full-screen viewer opens in Split-Screen Verification View (F10). Read-only.
+2. **Step 2:** Expand button allows full-screen text editing.
+3. **Step 3:** Bottom tab bar manages Pages, Attachments (F4), Links (F7), and Tags (F6).
